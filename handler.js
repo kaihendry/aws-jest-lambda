@@ -15,5 +15,5 @@ module.exports.start = async (event) => {
 
 module.exports.invokeme = async (event) => {
   console.log(event);
-  return { hello: "world" };
+  return { hello: event };
 };

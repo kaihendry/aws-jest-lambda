@@ -1,11 +1,11 @@
-const awsMock = require("aws-sdk-mock");
+const AWS = require("aws-sdk-mock");
 const handler = require("../handler.js");
 
 describe("Lambda stuff", () => {
   const lambdaSpy = jest.fn();
   beforeEach(() => {
     lambdaSpy.mockResolvedValue("mock ok");
-    awsMock.mock("Lambda", "invoke", lambdaSpy);
+    AWS.mock("Lambda", "invoke", lambdaSpy);
   });
 
   afterEach(() => {
