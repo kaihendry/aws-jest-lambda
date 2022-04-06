@@ -1,22 +1,26 @@
-const awsMock = require("aws-sdk-mock");
+const { mockClient } = require("aws-sdk-client-mock");
+const { LambdaClient, InvokeCommand } = require("@aws-sdk/client-lambda");
+
+const lambdaMock = mockClient(LambdaClient);
+
 const handler = require("../handler.js");
 
 describe("Lambda stuff", () => {
-  const lambdaSpy = jest.fn();
   beforeEach(() => {
-    lambdaSpy.mockResolvedValue("mock ok");
-    awsMock.mock("Lambda", "invoke", lambdaSpy);
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
+    lambdaMock.reset();
   });
 
   it("should invoke another lambda", async () => {
+    lambdaMock.on(InvokeCommand).resolves({
+      StatusCode: 200,
+      Payload: new Uint8Array(
+        Buffer.from(JSON.stringify({ body: { verified: true } }))
+      ),
+    });
     await handler.start();
-    expect(lambdaSpy.mock.calls[0][0].FunctionName).toBe(
+    // console.log(lambdaMock.call(0));
+    expect(lambdaMock.call(0).firstArg.input.FunctionName).toBe(
       "hendry-lambda-invoke-test-dev-invokeMEpls"
     );
-    expect(lambdaSpy.mock.calls[0][0].Payload).toBe('{"foo":"bar"}');
   });
 });
