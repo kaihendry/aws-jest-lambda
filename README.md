@@ -14,7 +14,8 @@ The `mock.calls[0][0]` method of asserting params feels a little wrong.
 
 ## Switch to AWS JS SDK v3
 
-https://twitter.com/radzikowski_m/status/1510967905411899395
+- https://aws.amazon.com/blogs/developer/mocking-modular-aws-sdk-for-javascript-v3-in-unit-tests/
+- https://twitter.com/radzikowski_m/status/1510967905411899395
 
 Big con of this approach is that the existing code base would have to be refactored.
 
