@@ -1,22 +1,38 @@
-const AWS = require("aws-sdk-mock");
 const handler = require("../handler.js");
+const log = require("lambda-log");
+const axios = require("axios");
+const mockAdapter = require("axios-mock-adapter");
 
-describe("Lambda stuff", () => {
-  const lambdaSpy = jest.fn();
-  beforeEach(() => {
-    lambdaSpy.mockResolvedValue("mock ok");
-    AWS.mock("Lambda", "invoke", lambdaSpy);
-  });
+describe("Axios stuff", () => {
+  const mock = new mockAdapter(axios);
 
-  afterEach(() => {
-    jest.restoreAllMocks();
-  });
+  it("should output metrics on API failure", async () => {
+    const logSpy = jest.spyOn(log, "warn").mockImplementation();
 
-  it("should invoke another lambda", async () => {
-    await handler.start();
-    expect(lambdaSpy.mock.calls[0][0].FunctionName).toBe(
-      "hendry-lambda-invoke-test-dev-invokeMEpls"
+    mock.onAny().reply(500);
+    await expect(handler.start()).rejects.toThrow(
+      "Request failed with status code 500"
     );
-    expect(lambdaSpy.mock.calls[0][0].Payload).toBe('{"foo":"bar"}');
+
+    expect(logSpy).toBeCalledWith("axios error", {
+      _aws: {
+        Timestamp: expect.any(Number),
+        CloudWatchMetrics: [
+          {
+            Namespace: "backend",
+            Dimensions: [["hostname", "functionName"]],
+            Metrics: [
+              {
+                Name: "statusCode",
+              },
+            ],
+          },
+        ],
+      },
+      data: expect.anything(),
+      functionName: expect.anything(),
+      hostname: expect.any(String),
+      statusCode: 500,
+    });
   });
 });

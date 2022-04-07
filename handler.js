@@ -5,9 +5,9 @@ const log = require("lambda-log");
 
 function errorLoggerMiddleware() {
   const errorLoggerMiddlewareOnError = async (request) => {
-    console.error(request.error);
+    //console.error(request.error);
     if (request.error.response) {
-      log.info("axios error", {
+      log.warn("axios error", {
         statusCode: request.error.response.status,
         data: request.error.response.data,
         functionName: request?.context.functionName,
