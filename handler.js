@@ -1,13 +1,13 @@
 "use strict";
 const axios = require("axios");
 const middy = require("@middy/core");
+const log = require("lambda-log");
 
 function errorLoggerMiddleware() {
   const errorLoggerMiddlewareOnError = async (request) => {
-    console.warn("context", request?.context);
-    console.warn(request.error.toJSON());
+    console.error(request.error);
     if (request.error.response) {
-      console.error("axios error", {
+      log.info("axios error", {
         statusCode: request.error.response.status,
         data: request.error.response.data,
         functionName: request?.context.functionName,
@@ -39,10 +39,7 @@ const baseHandler = async (event) => {
   return { resp };
 };
 
-const start = middy(baseHandler).use(
-  errorLoggerMiddleware()
-  // errorLoggerMiddleware({ awsContext: true })
-);
+const start = middy(baseHandler).use(errorLoggerMiddleware());
 module.exports = {
   start,
 };
